@@ -32,7 +32,7 @@
     - postgresql96-contrib
 
 - name: Initialize the database
-  shell: service postgresql96 initdb
+  command: service postgresql96 initdb
 
 - name: Edit the 'pg_hba.conf' to enable MD5-based authentication
   template:
@@ -74,6 +74,8 @@
     owner: sonarqube
     group: sonarqube
     remote_src: yes
+- name: Create sonar dir
+  shell: mkdir -p /opt/sonar
 
 - name: Rename sonarqube-{{sonar_version}} to sonar
   shell: rsync -a /opt/sonarqube-{{sonar_version}}/* /opt/sonar/
