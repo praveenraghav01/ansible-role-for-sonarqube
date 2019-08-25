@@ -23,33 +23,9 @@
     state: present
   when: ansible_os_family == "Debian"
 
-- name: Install Postgresql 9.6
-  yum:
-    name: "{{ packages }}"
-  vars:
-    packages:
-    - postgresql96-server 
-    - postgresql96-contrib
-
-- name: Initialize the database
-  command: service postgresql96 initdb
-
-- name: Edit the 'pg_hba.conf' to enable MD5-based authentication
-  template:
-    dest: /var/lib/pgsql96/data/pg_hba.conf
-    src: pg_hba.conf.j2
-
-- name: Start PostgreSQL server
-  shell: service postgresql96 start
-
-- name: Create sonar user for pgsql;
-  shell: su - postgres -c "psql -c \"CREATE USER {{ sonar_pgsql_username }} SUPERUSER;\""
-
-- name: Create password for sonar user
-  shell: su - postgres -c "psql -c \"ALTER USER {{ sonar_pgsql_username }} WITH PASSWORD '{{ sonar_pgsql_password }}';\""
-
-- name: Create database for sonar 
-  shell: su - postgres -c "psql -c \"CREATE DATABASE {{ sonar_pgsql_database }} OWNER {{ sonar_pgsql_username }};\""
+- name: Running Jenkins upgrade
+  include_tasks: setup-postgresql.yml
+  when: PostgresqlInstall == true 
 
 - name: Ensure group "sonarqube" exists
   group:

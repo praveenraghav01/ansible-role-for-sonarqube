@@ -1,6 +1,7 @@
 ---
 # vars file for ansible-role-for-sonarqube
 
+PostgresqlInstall: false
 
 # Default to the latest LTS release.
 sonar_version: 7.1
