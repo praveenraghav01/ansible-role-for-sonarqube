@@ -115,7 +115,7 @@
   shell: chown -R sonarqube:sonarqube /opt/sonarqube/temp/
 
 - name: Start Sonarqube (for initd systems)
-  shell: service sonar console
+  shell: service sonar start
   become: true
   become_user: sonarqube
   when: "ansible_service_mgr != 'systemd'"
