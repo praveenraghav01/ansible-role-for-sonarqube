@@ -5,17 +5,11 @@
   yum:
     name: java-1.7.0-openjdk
     state: removed
-    lock_timeout: 180
-  retries: 5
-  delay: 3
 
 - name: Install Java 8
   yum:
     name: java-1.8.0-openjdk.x86_64
     state: installed
-    lock_timeout: 180
-  retries: 5
-  delay: 3
 
 - name: Ensure unzip is installed on system
   yum:
@@ -30,7 +24,12 @@
   when: ansible_os_family == "Debian"
 
 - name: Install Postgresql 9.6
-  shell: yum -y install postgresql96-server postgresql96-contrib
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - postgresql96-server 
+    - postgresql96-contrib
 
 - name: Initialize the database
   shell: service postgresql96 initdb
