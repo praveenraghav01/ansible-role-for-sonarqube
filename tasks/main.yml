@@ -105,8 +105,9 @@
     src: /opt/sonarqube/bin/linux-x86-64/sonar.sh
     dest: /etc/init.d/sonar
     state: link
-    owner: root
-    group: root
+    owner: sonarqube
+    group: sonarqube
+    mode: 0755
   when: "ansible_service_mgr != 'systemd'"
 
 - name: Add sonar to boot (for initd systems)
@@ -119,7 +120,6 @@
 #sonar.jdbc.url=jdbc:postgresql://localhost/sonar
 
 - name: Start Sonarqube (for initd systems)
-  shell: sudo service sonar start
-  become: true
+  shell: service sonar start
   become_user: sonarqube
   when: "ansible_service_mgr != 'systemd'"
