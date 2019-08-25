@@ -105,6 +105,8 @@
     src: /opt/sonarqube/bin/linux-x86-64/sonar.sh
     dest: /etc/init.d/sonar
     state: link
+    owner: root
+    group: root
   when: "ansible_service_mgr != 'systemd'"
 
 - name: Add sonar to boot (for initd systems)
