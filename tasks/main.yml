@@ -1,0 +1,99 @@
+---
+# tasks file for ansible-role-for-sonarqube
+
+- name: Remove Java 7
+  yum:
+    name: java-1.7.0-openjdk
+    state: removed
+    lock_timeout: 180
+  retries: 5
+  delay: 3
+
+- name: Install Java 8
+  yum:
+    name: java-1.8.0-openjdk.x86_64
+    state: installed
+    lock_timeout: 180
+  retries: 5
+  delay: 3
+
+- name: Ensure unzip is installed on system
+  yum:
+    name: unzip
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure unzip is installed on system
+  apt:
+    name: unzip
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Postgresql 9.6
+  shell: yum -y install postgresql96-server postgresql96-contrib
+
+- name: Initialize the database
+  shell: service postgresql96 initdb
+
+- name: Edit the 'pg_hba.conf' to enable MD5-based authentication
+  template:
+    dest: /var/lib/pgsql96/data/pg_hba.conf
+    src: pg_hba.conf.j2
+
+- name: Start PostgreSQL server
+  shell: service postgresql96 start
+
+- name: Create sonar user for pgsql;
+  shell: su - postgres -c "psql -c \"CREATE USER {{ sonar_pgsql_username }} SUPERUSER;\""
+
+- name: Create password for sonar user
+  shell: su - postgres -c "psql -c \"ALTER USER {{ sonar_pgsql_username }} WITH PASSWORD '{{ sonar_pgsql_password }}';\""
+
+- name: Create database for sonar 
+  shell: su - postgres -c "psql -c \"CREATE DATABASE {{ sonar_pgsql_database }} OWNER {{ sonar_pgsql_username }};\""
+
+- name: Ensure group "sonarqube" exists
+  group:
+    name: sonarqube
+    state: present
+
+- name: Create user sonarcube for running SonarCube services
+  user:
+    name: sonarqube
+    group: sonarqube
+    state: present
+
+- name: Download sonar
+  get_url:
+    url: "{{sonar_download_url}}-{{sonar_version}}.zip"
+    dest: /tmp/
+
+- name: Unzip SonarCube binary
+  unarchive:
+    src: "/tmp/sonarqube-{{sonar_version}}.zip"
+    dest: /opt/
+    owner: sonarqube
+    group: sonarqube
+    remote_src: yes
+
+- name: Rename sonarqube-{{sonar_version}} to sonar
+  shell: rsync -a /opt/sonarqube-{{sonar_version}}/* /opt/sonar/
+
+- name: Update jdbc connection username
+  shell: sed -i 's/#sonar.jdbc.username=/sonar.jdbc.username={{ sonar_pgsql_username }}/g' /opt/sonarqube/conf/sonar.properties
+
+- name: Update jdbc connection password
+  shell: sed -i 's/#sonar.jdbc.password=/sonar.jdbc.password={{ sonar_pgsql_username }}/g' /opt/sonarqube/conf/sonar.properties
+
+
+- name: Update jdbc postgresql connection 
+  shell: sed -i 's/#sonar.jdbc.url=jdbc:postgresql:\/\/localhost\/sonar/sonar.jdbc.url=jdbc:postgresql:\/\/{{ sonar_pgsql_host }}\/{{ sonar_pgsql_database }}/g' /opt/sonarqube/conf/sonar.properties
+
+- name: Change owner for sonarqube dir
+  shell: chown -R sonar:sonar /opt/sonarqub
+
+- name: Start Sonarqube
+  shell: /opt/sonarqube/bin/linux-x86-64/sonar.sh start
+  become: true
+  become_user: sonarqube
+#sonar.jdbc.url=jdbc:postgresql://localhost/sonar
