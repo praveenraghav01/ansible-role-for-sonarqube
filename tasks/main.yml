@@ -63,13 +63,12 @@
 - name: Update jdbc connection password
   shell: sed -i 's/#sonar.jdbc.password=/sonar.jdbc.password={{ sonar_pgsql_password }}/g' /opt/sonarqube/conf/sonar.properties
 
-
 - name: Update jdbc postgresql connection 
   shell: sed -i 's/#sonar.jdbc.url=jdbc:postgresql:\/\/localhost\/sonar/sonar.jdbc.url=jdbc:postgresql:\/\/{{ sonar_pgsql_host }}\/{{ sonar_pgsql_database }}/g' /opt/sonarqube/conf/sonar.properties
 
 - name: Change owner for sonarqube dir
   file:
-    path: /opt/sonarqube/*
+    path: /opt/sonarqube
     owner: sonarqube
     group: sonarqube
     mode: '0755'
