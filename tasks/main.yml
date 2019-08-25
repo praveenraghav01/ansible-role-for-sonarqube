@@ -23,7 +23,7 @@
     state: present
   when: ansible_os_family == "Debian"
 
-- name: Running Jenkins upgrade
+- name: Installing PostgreSQL
   include_tasks: setup-postgresql.yml
   when: PostgresqlInstall == true 
 
@@ -52,10 +52,10 @@
     remote_src: yes
     
 - name: Create sonar dir
-  shell: mkdir -p /opt/sonar
+  shell: mkdir -p /opt/sonarqube
 
 - name: Rename sonarqube-{{sonar_version}} to sonar
-  shell: rsync -a /opt/sonarqube-{{sonar_version}}/* /opt/sonar/
+  shell: rsync -a /opt/sonarqube-{{sonar_version}}/* /opt/sonarqube/
 
 - name: Update jdbc connection username
   shell: sed -i 's/#sonar.jdbc.username=/sonar.jdbc.username={{ sonar_pgsql_username }}/g' /opt/sonarqube/conf/sonar.properties
