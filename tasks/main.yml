@@ -112,7 +112,7 @@
 #   become_user: sonarqube
 #sonar.jdbc.url=jdbc:postgresql://localhost/sonar
 - name: Change Permission
-  shell: chown -R sonarqube:sonarqube /opt/sonarqube/temp/conf/es/
+  shell: chown -R sonarqube:sonarqube /opt/sonarqube/temp/
 
 - name: Start Sonarqube (for initd systems)
   shell: service sonar console
