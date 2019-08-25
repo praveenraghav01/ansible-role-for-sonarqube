@@ -113,7 +113,7 @@
 #sonar.jdbc.url=jdbc:postgresql://localhost/sonar
 
 - name: Start Sonarqube (for initd systems)
-  shell: service sonar console
+  shell: whoami | service sonar console
   become: true
   become_user: sonarqube
   when: "ansible_service_mgr != 'systemd'"
