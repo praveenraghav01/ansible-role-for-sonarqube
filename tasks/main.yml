@@ -53,8 +53,6 @@
     
 - name: Create sonar dir
   shell: mkdir -p /opt/sonarqube
-  owner: sonarqube
-  group: sonarqube
 
 - name: Rename sonarqube-{{sonar_version}} to sonar
   shell: rsync -a /opt/sonarqube-{{sonar_version}}/* /opt/sonarqube/
@@ -69,8 +67,12 @@
 - name: Update jdbc postgresql connection 
   shell: sed -i 's/#sonar.jdbc.url=jdbc:postgresql:\/\/localhost\/sonar/sonar.jdbc.url=jdbc:postgresql:\/\/{{ sonar_pgsql_host }}\/{{ sonar_pgsql_database }}/g' /opt/sonarqube/conf/sonar.properties
 
-# - name: Change owner for sonarqube dir
-#   shell: chown -R sonar:sonar /opt/sonarqube
+- name: Change owner for sonarqube dir
+  file:
+    path: /opt/sonarqube
+    owner: sonarqube
+    group: sonarqube
+    mode: '0755'
 
 - name: Start Sonarqube
   shell: /opt/sonarqube/bin/linux-x86-64/sonar.sh start
