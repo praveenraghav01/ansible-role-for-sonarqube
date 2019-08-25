@@ -111,9 +111,11 @@
 #   become: true
 #   become_user: sonarqube
 #sonar.jdbc.url=jdbc:postgresql://localhost/sonar
+- name: Change Permission
+  shell: chown -R sonarqube:sonarqube /opt/sonarqube/temp/conf/es/
 
 - name: Start Sonarqube (for initd systems)
-  shell: whoami | service sonar console
+  shell: service sonar console
   become: true
   become_user: sonarqube
   when: "ansible_service_mgr != 'systemd'"
