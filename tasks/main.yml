@@ -74,6 +74,7 @@
     owner: sonarqube
     group: sonarqube
     remote_src: yes
+    
 - name: Create sonar dir
   shell: mkdir -p /opt/sonar
 
