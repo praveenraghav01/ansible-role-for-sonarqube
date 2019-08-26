@@ -87,14 +87,10 @@
 
 - name: Start the Sonarqube (for systemd systems)
   shell: systemctl start sonar
-  become: true
-  become_user: sonarqube
   when: "ansible_service_mgr == 'systemd'"
 
 - name: Enable the SonarQube service to automatically start at boot time (for systemd systems)
   shell: systemctl enable sonar
-  become: true
-  become_user: sonarqube
   when: "ansible_service_mgr == 'systemd'"
 
 - name: Configure Systemd service (for initd systems)
