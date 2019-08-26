@@ -82,12 +82,19 @@
     mode: 0755
   when: "ansible_service_mgr == 'systemd'"
 
+- name: Change Permission
+  shell: chown -R sonarqube:sonarqube /opt/sonarqube/temp/
+
 - name: Start the Sonarqube (for systemd systems)
   shell: systemctl start sonar
+  become: true
+  become_user: sonarqube
   when: "ansible_service_mgr == 'systemd'"
 
 - name: Enable the SonarQube service to automatically start at boot time (for systemd systems)
   shell: systemctl enable sonar
+  become: true
+  become_user: sonarqube
   when: "ansible_service_mgr == 'systemd'"
 
 - name: Configure Systemd service (for initd systems)
@@ -106,13 +113,6 @@
 - name: Add sonar to boot (for initd systems)
   shell: chkconfig --add sonar
   when: "ansible_service_mgr != 'systemd'"
-# - name: Start Sonarqube
-#   shell: /opt/sonarqube/bin/linux-x86-64/sonar.sh start
-#   become: true
-#   become_user: sonarqube
-#sonar.jdbc.url=jdbc:postgresql://localhost/sonar
-- name: Change Permission
-  shell: chown -R sonarqube:sonarqube /opt/sonarqube/temp/
 
 - name: Start Sonarqube (for initd systems)
   shell: service sonar start

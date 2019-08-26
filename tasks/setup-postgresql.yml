@@ -1,22 +1,52 @@
 ---
-- name: Install Postgresql 9.6
+- name: Install Postgresql 9.6 (for initd systems)
   yum:
     name: "{{ packages }}"
   vars:
     packages:
     - postgresql96-server 
     - postgresql96-contrib
+  when: "ansible_service_mgr != 'systemd'"
 
-- name: Initialize the database
+- name: Install Postgresql 9.6 (for systemd systems)
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - postgresql
+    - postgresql-server
+    - postgresql-devel
+    - postgresql-contrib
+    - postgresql-docs
+  when: "ansible_service_mgr == 'systemd'"
+
+- name: Initialize the database (for systemd systems)
+  command: service postgresql initdb
+  when: "ansible_service_mgr == 'systemd'"
+
+- name: Initialize the database (for initd systems)
   command: service postgresql96 initdb
+  when: "ansible_service_mgr != 'systemd'"
 
-- name: Edit the 'pg_hba.conf' to enable MD5-based authentication
+- name: Edit the 'pg_hba.conf' to enable MD5-based authentication (for systemd systems)
+  template:
+    dest: /var/lib/pgsql/data/pg_hba.conf
+    src: pg_hba.conf.j2
+  when: "ansible_service_mgr == 'systemd'"
+
+- name: Edit the 'pg_hba.conf' to enable MD5-based authentication (for initd systems)
   template:
     dest: /var/lib/pgsql96/data/pg_hba.conf
     src: pg_hba.conf.j2
+  when: "ansible_service_mgr != 'systemd'"
 
-- name: Start PostgreSQL server
+- name: Start PostgreSQL server (for systemd systems)
+  shell: service postgresql start
+  when: "ansible_service_mgr == 'systemd'"
+
+- name: Start PostgreSQL server (for initd systems)
   shell: service postgresql96 start
+  when: "ansible_service_mgr != 'systemd'"
 
 - name: Create sonar user for pgsql;
   shell: su - postgres -c "psql -c \"CREATE USER {{ sonar_pgsql_username }} SUPERUSER;\""
